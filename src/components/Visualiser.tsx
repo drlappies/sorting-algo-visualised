@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import Bar from './Bar'
+import Button from './Button'
+import Input from './Input'
+import Select from './Select'
 
 const Visualiser: React.FunctionComponent<{}> = () => {
     const [items, setItems] = useState<number[]>([])
@@ -167,6 +170,8 @@ const Visualiser: React.FunctionComponent<{}> = () => {
                         }
                     }
 
+                    yield setItems([...sorted])
+
                     while (left < leftLimit) {
                         sort[left] = true;
                         sort[right] = true;
@@ -179,6 +184,8 @@ const Visualiser: React.FunctionComponent<{}> = () => {
                         buffer[i++] = sorted[left++];
                         yield setItems([...sorted])
                     }
+
+                    yield setItems([...sorted])
 
                     while (right < rightLimit) {
                         sort[left] = true;
@@ -193,6 +200,8 @@ const Visualiser: React.FunctionComponent<{}> = () => {
                         yield setItems([...sorted])
 
                     }
+
+                    yield setItems([...sorted])
                 }
                 let temp = sorted
                 sorted = buffer
@@ -210,7 +219,7 @@ const Visualiser: React.FunctionComponent<{}> = () => {
         }, 1500 / speed)
     }
 
-    const sort = (method: string) => {
+    const sort = (method: string): any => {
         switch (method) {
             case 'bubbleSort':
                 bubbleSort()
@@ -241,32 +250,20 @@ const Visualiser: React.FunctionComponent<{}> = () => {
                 )}
             </div>
             <div className="mt-64 grid grid-cols-4 gap-4">
-                <div className="flex flex-row justify-center ">
-                    <label className="text-gray-700 select-none font-medium" htmlFor="lower">Lower Bound: </label>
-                    <input className="py-2" id="lower" name="lower" type="range" value={lower} min="1" max="50" onChange={(e) => setLower(parseInt(e.target.value))} />
-                </div>
-                <div className="flex flex-row justify-center ">
-                    <label className="text-gray-700 select-none font-medium" htmlFor="upper">Upper Bound: </label>
-                    <input className="py-2" id="upper" name="upper" type="range" value={upper} min="1" max="50" onChange={(e) => setUpper(parseInt(e.target.value))} />
-                </div>
-                <div className="flex flex-row justify-center ">
-                    <label className="text-gray-700 select-none font-medium" htmlFor="length">Length: </label>
-                    <input className="py-2" id="length" name="length" type="range" min="10" max="50" value={length} onChange={(e) => setLength(parseInt(e.target.value))} />
-                </div>
-                <div className="flex flex-row justify-center ">
-                    <label className="text-gray-700 select-none font-medium" htmlFor="speed">Speed: </label>
-                    <input className="py-2" id="speed" name="speed" type="range" min="1" max="500" value={speed} onChange={(e) => setSpeed(parseInt(e.target.value))} />
-                </div>
+                <Input name="Lower Bound" value={lower} min={1} max={50} callback={setLower} />
+                <Input name="Upper Bound" value={upper} min={1} max={50} callback={setUpper} />
+                <Input name="Length" value={length} min={10} max={50} callback={setLength} />
+                <Input name="Speed" value={speed} min={1} max={500} callback={setSpeed} />
             </div>
             <div className="flex flex-row justify-center mt-10">
-                <select className="px-24 py-2 rounded mx-2" id="method" name="method" value={method} onChange={(e) => setMethod(e.target.value)}>
+                <Select method={method} callback={setMethod}>
                     <option value="bubbleSort">Bubble Sort</option>
                     <option value="selectionSort">Selection Sort</option>
                     <option value="insertionSort">Insertion Sort</option>
                     <option value="mergeSort">Merge Sort</option>
-                </select>
-                <button className="bg-green-500 px-24 py-2 rounded mx-2" onClick={() => sort(method)}>Sort</button>
-                <button className="bg-blue-500 px-24 py-2 rounded mx-2" onClick={() => generateItems(lower, upper, length)}>Randomise</button>
+                </Select>
+                <Button name="Sort" color="green" callback={() => sort(method)} />
+                <Button name="Randomise" color="blue" callback={() => generateItems(lower, upper, length)} />
             </div>
         </div>
     )
