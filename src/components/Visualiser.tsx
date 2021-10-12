@@ -264,6 +264,7 @@ const Visualiser: React.FunctionComponent<{}> = () => {
                 </Select>
                 <Button name="Sort" color="green" callback={() => sort(method)} />
                 <Button name="Randomise" color="blue" callback={() => generateItems(lower, upper, length)} />
+                <Button name="Reset" color="red" callback={() => window.location.reload()} />
             </div>
         </div>
     )
