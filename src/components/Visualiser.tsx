@@ -77,8 +77,8 @@ const Visualiser: React.FunctionComponent<{}> = () => {
                 arr[i] = arr[min]
                 arr[min] = temp;
                 sort[i] = false
-                yield setIsSorting([...sort])
                 yield setItems([...arr])
+                yield setIsSorting([...sort])
             }
         }
 
@@ -125,6 +125,91 @@ const Visualiser: React.FunctionComponent<{}> = () => {
         }, 1500 / speed)
     }
 
+    const mergeSort = async () => {
+        let arr = items
+        let sort = isSorting
+
+        function* main(array: number[] = arr) {
+            let sorted = array.slice()
+            let length = sorted.length
+            let buffer = new Array(length)
+
+            for (let size = 1; size < length; size *= 2) {
+                for (let leftStart = 0; leftStart < length; leftStart += 2 * size) {
+
+                    let left = leftStart
+                    let right = Math.min(left + size, length)
+                    let leftLimit = right
+                    let rightLimit = Math.min(right + size, length)
+                    let i = left;
+
+                    while (left < leftLimit && right < rightLimit) {
+                        if (sorted[left] <= sorted[right]) {
+                            sort[left] = true;
+                            sort[right] = true;
+                            yield setIsSorting(prevState => prevState = [...sort])
+
+                            sort[left] = false;
+                            sort[right] = false;
+                            yield setIsSorting(prevState => prevState = [...sort])
+                            buffer[i++] = sorted[left++];
+                            yield setItems([...sorted])
+                        } else {
+                            sort[left] = true;
+                            sort[right] = true;
+                            yield setIsSorting(prevState => prevState = [...sort])
+
+                            sort[left] = false;
+                            sort[right] = false;
+                            yield setIsSorting(prevState => prevState = [...sort])
+                            buffer[i++] = sorted[right++]
+                            yield setItems([...sorted])
+                        }
+                    }
+
+                    while (left < leftLimit) {
+                        sort[left] = true;
+                        sort[right] = true;
+                        yield setIsSorting(prevState => prevState = [...sort])
+
+                        sort[left] = false;
+                        sort[right] = false;
+                        yield setIsSorting(prevState => prevState = [...sort])
+
+                        buffer[i++] = sorted[left++];
+                        yield setItems([...sorted])
+                    }
+
+                    while (right < rightLimit) {
+                        sort[left] = true;
+                        sort[right] = true;
+                        yield setIsSorting(prevState => prevState = [...sort])
+
+                        sort[left] = false;
+                        sort[right] = false;
+                        yield setIsSorting(prevState => prevState = [...sort])
+
+                        buffer[i++] = sorted[right++];
+                        yield setItems([...sorted])
+
+                    }
+                }
+                let temp = sorted
+                sorted = buffer
+                buffer = temp
+            }
+            yield setItems([...sorted])
+        }
+
+        const step = main()
+        const interval = setInterval(() => {
+            let next = step.next()
+            if (next.done) {
+                clearInterval(interval)
+            }
+        }, 1500 / speed)
+    }
+
     const sort = (method: string) => {
         switch (method) {
             case 'bubbleSort':
@@ -135,6 +220,9 @@ const Visualiser: React.FunctionComponent<{}> = () => {
                 break;
             case 'insertionSort':
                 insertionSort()
+                break;
+            case 'mergeSort':
+                mergeSort();
                 break;
             default:
                 break;
@@ -176,7 +264,6 @@ const Visualiser: React.FunctionComponent<{}> = () => {
                     <option value="selectionSort">Selection Sort</option>
                     <option value="insertionSort">Insertion Sort</option>
                     <option value="mergeSort">Merge Sort</option>
-                    <option value="quickSort">Quick Sort</option>
                 </select>
                 <button className="bg-green-500 px-24 py-2 rounded mx-2" onClick={() => sort(method)}>Sort</button>
                 <button className="bg-blue-500 px-24 py-2 rounded mx-2" onClick={() => generateItems(lower, upper, length)}>Randomise</button>
